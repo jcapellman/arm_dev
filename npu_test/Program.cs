@@ -7,11 +7,16 @@ namespace npu_test
     {
         static void Main(string[] args)
         {
-            var options = new SessionOptions();
-            options.AppendExecutionProvider("QNNExecutionProvider");
-            options.ProfileOutputPathPrefix = Path.Combine(AppContext.BaseDirectory, "QnnHtp.dll");
-            
-            using var session = new InferenceSession("model.onnx", options);
+            // Create Session options
+            using var _sessionOptions = new SessionOptions();
+            Dictionary<string, string> config = new Dictionary<string, string> {
+                { "backend_path", "QnnHtp.dll"},
+                { "enable_htp_fp16_precision", "1"}
+            };
+
+            _sessionOptions.AppendExecutionProvider("QNN", config);
+
+            using var _encoderSession = new InferenceSession(args[0], _sessionOptions);
             var inputTensor = new DenseTensor<float>(new float[] { /* input data */ }, new int[] { /* dimensions */ });
             var inputs = new List<NamedOnnxValue> { NamedOnnxValue.CreateFromTensor("input", inputTensor) };
 
